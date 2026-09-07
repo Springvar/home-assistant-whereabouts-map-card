@@ -1,4 +1,5 @@
 import type { DisplayCondition, SensorCondition, GroupCondition, NotCondition, DefaultCondition, PersonConfig, PersonSensors } from './types';
+import { getDataAgeMinutes } from './data-age';
 
 export interface TrailPointContext {
     point: { lat: number; lon: number };
@@ -43,14 +44,10 @@ function getLocation(hass: any, entityId: string): { latitude: number; longitude
     return null;
 }
 
-function getDataAgeMinutes(hass: any, entityId: string): number {
+function getDataAgeMinutesFor(hass: any, entityId: string): number {
     const entity = hass?.states[entityId];
     if (!entity) return Infinity;
-    const lastUpdated = entity.last_updated || entity.last_changed;
-    if (!lastUpdated) return Infinity;
-    const timestamp = new Date(lastUpdated).getTime();
-    if (isNaN(timestamp)) return Infinity;
-    return (Date.now() - timestamp) / 60000;
+    return getDataAgeMinutes(entity, (id) => hass?.states?.[id]);
 }
 
 function haversine(lat1: number, lon1: number, lat2: number, lon2: number): number {
@@ -155,7 +152,7 @@ function resolveSensorValue(hass: any, person: PersonConfig, currentUserLocation
     }
 
     if (sensorKey === 'data_age') {
-        return getDataAgeMinutes(hass, person.entity_id);
+        return getDataAgeMinutesFor(hass, person.entity_id);
     }
 
     const namedSensor = person.namedSensors?.[sensorKey];

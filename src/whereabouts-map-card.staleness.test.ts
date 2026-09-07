@@ -33,6 +33,7 @@ describe('WhereaboutsMapCard staleness', () => {
 
     function setPerson(entityId: string, iso: string) {
         el._hass.states[entityId] = {
+            entity_id: entityId,
             state: 'home',
             last_changed: iso,
             last_updated: iso,
@@ -87,6 +88,41 @@ describe('WhereaboutsMapCard staleness', () => {
         it('returns false when threshold not configured', () => {
             setPerson('person.old', hoursAgo(500));
             expect(el._isStale('person.old')).toBe(false);
+        });
+
+        it('uses newest position tracker update despite fresh person entity churn', () => {
+            setPerson('person.stale', hoursAgo(1));
+            el._hass.states['person.stale'].attributes.device_trackers = ['device_tracker.phone', 'device_tracker.router'];
+            el._hass.states['device_tracker.phone'] = {
+                entity_id: 'device_tracker.phone',
+                state: 'Trøndelag',
+                last_changed: hoursAgo(24 * 13),
+                last_updated: hoursAgo(24 * 13),
+                attributes: { tracking_type: 'position', latitude: 63.4, longitude: 10.4 },
+            };
+            el._hass.states['device_tracker.router'] = {
+                entity_id: 'device_tracker.router',
+                state: 'Trøndelag',
+                last_changed: hoursAgo(1),
+                last_updated: hoursAgo(1),
+                attributes: { tracking_type: 'connection' },
+            };
+            el.stale_after_hours = 8;
+            expect(el._isStale('person.stale')).toBe(true);
+        });
+
+        it('keeps person fresh when position tracker is recent', () => {
+            setPerson('person.fresh', hoursAgo(30));
+            el._hass.states['person.fresh'].attributes.device_trackers = ['device_tracker.phone'];
+            el._hass.states['device_tracker.phone'] = {
+                entity_id: 'device_tracker.phone',
+                state: 'home',
+                last_changed: hoursAgo(1),
+                last_updated: hoursAgo(1),
+                attributes: { latitude: 52.5, longitude: 13.4 },
+            };
+            el.stale_after_hours = 8;
+            expect(el._isStale('person.fresh')).toBe(false);
         });
     });
 

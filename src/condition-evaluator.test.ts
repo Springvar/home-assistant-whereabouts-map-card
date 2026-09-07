@@ -202,6 +202,67 @@ describe('evaluateConditions', () => {
             const cond: SensorCondition = { sensor: 'data_age', comparator: 'gte', value: 720 }; // >= 12h
             expect(evaluateConditions(hass, makePerson(), null, cond)).toBe(true);
         });
+
+        it('bases age on newest position tracker, ignoring person entity churn', () => {
+            const churned = minutesAgo(30);
+            const phoneUpdated = minutesAgo(60 * 24 * 13); // ~2 weeks
+            const hass = makeHass({
+                states: {
+                    ...makeHass().states,
+                    'person.john': {
+                        entity_id: 'person.john',
+                        state: 'Trøndelag',
+                        attributes: {
+                            device_trackers: ['device_tracker.john_phone', 'device_tracker.john_router'],
+                        },
+                        last_changed: churned,
+                        last_updated: churned,
+                    },
+                    'device_tracker.john_phone': {
+                        entity_id: 'device_tracker.john_phone',
+                        state: 'Trøndelag',
+                        attributes: { tracking_type: 'position', latitude: 63.4, longitude: 10.4 },
+                        last_changed: phoneUpdated,
+                        last_updated: phoneUpdated,
+                    },
+                    'device_tracker.john_router': {
+                        entity_id: 'device_tracker.john_router',
+                        state: 'Trøndelag',
+                        attributes: { tracking_type: 'connection' },
+                        last_changed: churned,
+                        last_updated: churned,
+                    },
+                },
+            });
+            const cond: SensorCondition = { sensor: 'data_age', comparator: 'gt', value: 1440 }; // > 24h
+            expect(evaluateConditions(hass, makePerson(), null, cond)).toBe(true);
+        });
+
+        it('treats person as fresh when newest position tracker is recent', () => {
+            const stale = minutesAgo(60 * 24);
+            const fresh = minutesAgo(30);
+            const hass = makeHass({
+                states: {
+                    ...makeHass().states,
+                    'person.john': {
+                        entity_id: 'person.john',
+                        state: 'home',
+                        attributes: { device_trackers: ['device_tracker.john_phone'] },
+                        last_changed: stale,
+                        last_updated: stale,
+                    },
+                    'device_tracker.john_phone': {
+                        entity_id: 'device_tracker.john_phone',
+                        state: 'home',
+                        attributes: { latitude: 52.5, longitude: 13.4 },
+                        last_changed: fresh,
+                        last_updated: fresh,
+                    },
+                },
+            });
+            const cond: SensorCondition = { sensor: 'data_age', comparator: 'gt', value: 1440 };
+            expect(evaluateConditions(hass, makePerson(), null, cond)).toBe(false);
+        });
     });
 
     describe('SensorCondition - random', () => {

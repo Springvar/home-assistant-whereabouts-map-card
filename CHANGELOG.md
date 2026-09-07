@@ -4,6 +4,12 @@ All notable changes to this project are documented in this file.
 
 ## [Unreleased]
 
+## [0.3.1-pre.1] - 2026-09-06
+
+### Fixed
+
+- **Staleness and `data_age` reflect actual position freshness** - A person's age is now measured from the newest update among their attached **position** device trackers (those with `tracking_type: position` or GPS coordinates), falling back to the entity's own `last_updated`/`last_changed` when none exist. Connection-style trackers (WiFi/BLE/router presence) are ignored, so unrelated updates no longer falsely reset the stale marker or satisfy `data_age` display conditions.
+
 ## [0.3.1-pre] - 2026-09-06
 
 ### Changed

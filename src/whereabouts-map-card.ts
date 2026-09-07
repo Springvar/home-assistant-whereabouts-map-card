@@ -6,6 +6,7 @@ import type { PersonConfig, DisplayRule, MapConfig, MapType, ZoomConfig, CenterC
 import { TrailConfig, TRAIL_COLORS, migrateDisplayRules, migrateTrailConfig } from './types';
 import { evaluateConditions, extractDistanceThreshold, evaluateTrailPointConditions, type TrailPointContext } from './condition-evaluator';
 import { getTileProvider, buildTileUrl } from './tileProviders';
+import { getDataAgeHours } from './data-age';
 
 export interface WhereaboutsMapCardConfig {
     persons: PersonConfig[];
@@ -913,11 +914,7 @@ class WhereaboutsMapCard extends LitElement {
     private _getDataAgeHours(entityId: string): number {
         const entity = this._hass?.states?.[entityId];
         if (!entity) return Infinity;
-        const lastUpdated = entity.last_updated || entity.last_changed;
-        if (!lastUpdated) return Infinity;
-        const timestamp = new Date(lastUpdated).getTime();
-        if (isNaN(timestamp)) return Infinity;
-        return (Date.now() - timestamp) / 3600000;
+        return getDataAgeHours(entity, (id) => this._hass?.states?.[id]);
     }
 
     private _isStale(entityId: string): boolean {

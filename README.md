@@ -226,7 +226,9 @@ persons:
 stale_after_hours: 24
 ```
 
-The card re-evaluates staleness once a minute and updates the markers automatically. A person with no entity or no timestamp is always treated as stale. Age is measured from the entity's `last_updated` (falling back to `last_changed`), so attribute-only GPS updates keep a person "fresh" even when the state value (`home`/`away`) doesn't change.
+The card re-evaluates staleness once a minute and updates the markers automatically. A person with no entity or no timestamp is always treated as stale.
+
+Age is measured from the person's **position device trackers** rather than the person entity itself: for a `person.*` entity the newest update among its attached position trackers (those with `tracking_type: position` or GPS coordinates) is used, falling back to the entity's `last_updated` (then `last_changed`) when no position trackers exist. Connection-style trackers (WiFi/BLE/router presence) are ignored, so location-data age isn't falsely reset by unrelated updates such as presence pings or the person entity's source-tracker switches.
 
 You can also use the built-in `data_age` sensor (age in **minutes**) in display conditions, e.g. to hide a stale person entirely instead of just dimming them:
 
