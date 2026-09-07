@@ -21,7 +21,6 @@ Consolidated release of the stale-detection, trail-history, editor, and position
 
 ### Fixed
 
-- **Staleness and `data_age` reflect actual position freshness** - A person's age is now measured from the newest update among their attached **position** device trackers (those with `tracking_type: position` or GPS coordinates), falling back to the entity's own `last_updated`/`last_changed` when none exist. Connection-style trackers (WiFi/BLE/router presence) are ignored, so unrelated updates no longer falsely reset the stale marker or satisfy `data_age` display conditions.
 - **Trail history "Request error"** - Replaced the REST `callApi` history fetch with the WebSocket `history/history_during_period` API (`hass.callWS`), eliminating the residual `{error: 'Request error'}` failures on Home Assistant versions where the REST history endpoint is unavailable or rejects requests.
 - **Stale styling on overlay toggles** - The person toggle buttons in the top-right overlay now also dim and grayscale when their person is stale, matching the map marker treatment.
 
