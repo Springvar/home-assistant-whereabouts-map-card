@@ -1107,12 +1107,12 @@ class WhereaboutsMapCard extends LitElement {
             opacity: 0.5;
         }
         .overlay-person-btn.stale {
-            filter: grayscale(1);
-            opacity: 0.6;
+            filter: grayscale(1) brightness(0.85);
+            opacity: 0.5;
         }
         .person-marker.stale {
-            filter: grayscale(1);
-            opacity: 0.6;
+            filter: grayscale(1) brightness(0.85);
+            opacity: 0.5;
             transition: filter 0.2s, opacity 0.2s;
         }
         .person-icon-img {
