@@ -4,6 +4,12 @@ All notable changes to this project are documented in this file.
 
 ## [Unreleased]
 
+## [0.3.1-pre.2] - 2026-09-06
+
+### Changed
+
+- **More distinct stale marker styling** - Stale markers and overlay toggles are now faded (opacity 0.5) and lightened (`brightness(0.85)`) in addition to the grayscale filter, making outdated positions easier to spot.
+
 ## [0.3.1-pre.1] - 2026-09-06
 
 Re-versioned publication of the work originally shipped as the invalid `v0.3.2-pre`/`v0.3.3-pre` releases, plus the position-freshness fix.
