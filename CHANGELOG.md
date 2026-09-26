@@ -4,6 +4,12 @@ All notable changes to this project are documented in this file.
 
 ## [Unreleased]
 
+## [0.3.2-pre.1] - 2026-09-26
+
+### Fixed
+
+- **Background map tiles blocked by OpenStreetMap** - Map tiles returned `403 Access Blocked (Referer required)` and never rendered. Home Assistant serves the frontend with a `same-origin` referrer policy, which strips the `Referer` header from cross-origin requests, and OSM's tile servers reject requests that arrive without one. The tile layer now sets `referrerPolicy: "strict-origin-when-cross-origin"`, which sends the site origin. This affects the `color` (OSM), `topo` and `light`/`dark`/`voyager` (CARTO) styles.
+
 ## [0.3.1] - 2026-09-07
 
 Consolidated release of the stale-detection, trail-history, editor, and position-freshness work.

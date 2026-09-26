@@ -806,9 +806,12 @@ class WhereaboutsMapCard extends LitElement {
         const url = buildTileUrl(resolved.id, resolved.apiKey);
         if (!url) return;
 
+        // referrerPolicy: HA's page-level "same-origin" policy strips the
+        // Referer header that OSM requires, otherwise tiles return 403.
         const tileLayer = window.L.tileLayer(url, {
             attribution: provider.attribution,
-            subdomains: provider.subdomains
+            subdomains: provider.subdomains,
+            referrerPolicy: 'strict-origin-when-cross-origin'
         });
         if (this.map.opacity != null) {
             tileLayer.setOpacity(this.map.opacity);
